@@ -278,7 +278,7 @@ nv.models.scatter = function() {
             .selectAll('.nv-point')
               //.data(dataWithPoints)
               //.style('pointer-events', 'auto') // recativate events, disabled by css
-              .on('click', function(d,i) { 
+              .on('click', function(d,i) {
                 //nv.log('test', d, i);
                 if (needsUpdate) return 0;
                 var series = data[d.series],
@@ -342,15 +342,17 @@ nv.models.scatter = function() {
           .style('stroke-opacity', 1)
           .style('fill-opacity', .5);
 
-
       if (onlyCircles) {
 
         var points = groups.selectAll('circle.nv-point')
             .data(function(d) { return d.values });
-        points.enter().append('circle')
+        points
+            .attr("visibility", function(d,i) {return d.disabled ? "hidden" : "visible"})
+            .enter().append('circle')
             .attr('cx', function(d,i) { return x0(getX(d,i)) })
             .attr('cy', function(d,i) { return y0(getY(d,i)) })
-            .attr('r', function(d,i) { return Math.sqrt(z(getSize(d,i))/Math.PI) });
+            .attr('r', function(d,i) { return Math.sqrt(z(getSize(d,i))/Math.PI) })
+            .attr("visibility", function(d,i) {return d.disabled ? "hidden" : "visible"});;
         points.exit().remove();
         d3.transition(groups.exit().selectAll('path.nv-point'))
             .attr('cx', function(d,i) { return x(getX(d,i)) })
@@ -366,7 +368,9 @@ nv.models.scatter = function() {
 
         var points = groups.selectAll('path.nv-point')
             .data(function(d) { return d.values });
-        points.enter().append('path')
+        points
+            .attr("visibility", function(d,i) {return d.disabled ? "hidden" : "visible"})
+            .enter().append('path')
             .attr('transform', function(d,i) {
               return 'translate(' + x0(getX(d,i)) + ',' + y0(getY(d,i)) + ')'
             })
@@ -374,7 +378,8 @@ nv.models.scatter = function() {
               d3.svg.symbol()
                 .type(getShape)
                 .size(function(d,i) { return z(getSize(d,i)) })
-            );
+            )
+            .attr("visibility", function(d,i) {return d.disabled ? "hidden" : "visible"});;
         points.exit().remove();
         d3.transition(groups.exit().selectAll('path.nv-point'))
             .attr('transform', function(d,i) {
@@ -393,7 +398,6 @@ nv.models.scatter = function() {
                 .size(function(d,i) { return z(getSize(d,i)) })
             );
       }
-
 
       // Delay updating the invisible interactive layer for smoother animation
       clearTimeout(timeoutID); // stop repeat calls to updateInteractiveLayer
